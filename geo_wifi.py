@@ -34,7 +34,7 @@ class GeoWifi():
 
     def request(self, key, addr1, addr2 ):
         url = "https://www.googleapis.com/geolocation/v1/geolocate?key=" + key
-        print url
+        #print url
         text = self.buildJson( addr1, addr2 )
         #print text #this is a json
         #res = requests.post(url, json=text) # for some reason this isn't very accurate...
@@ -51,7 +51,7 @@ class GeoWifi():
 
     def request_new(self, key, mac_array, p_array ):
         url = "https://www.googleapis.com/geolocation/v1/geolocate?key=" + key
-        print url
+        #print url
         text = self.buildJson_array(mac_array, p_array)
         #print text #this is a json
         #res = requests.post(url, json=text) # for some reason this isn't very accurate...
@@ -90,12 +90,16 @@ class GeoWifi():
         for i,m in enumerate(mac_array):
             if len(m) == 0:
                 break
-            list.append(self.buildAddress(m,p_array[i]))
+            list.append(self.buildAddress2(m,p_array[i]))
         #list.append( self.buildAddress(addr1) )
         #list.append( self.buildAddress(addr2) )
         return list
 
-    def buildAddress(self, addr,power):
+    def buildAddress(self, addr):
+        dict = { "macAddress": addr}
+        return dict
+
+    def buildAddress2(self, addr,power):
         dict = { "macAddress": addr, "signalStrength": power }
         return dict
 
@@ -132,13 +136,18 @@ def openChrome(lat, lng):
 
 def locateself(debug_arg):
     if debug_arg == 1:
+        print("Pulling from wifilist")
         os.popen("cat wifilist | grep WPA | sort -r -k3 -n > /tmp/wifi")
         powers = os.popen("cat /tmp/wifi | awk '{print $3}'").read()
         macs = os.popen("cat /tmp/wifi | awk '{print $1}'").read()
+        print("Finished getting Wifi\n")
     else:
+        print("Scanning for SSIDs")
         os.popen("wpa_cli scan")
         time.sleep(3) # to allow the scan results to populate
+        print("Scanning finished!")
         os.popen("wpa_cli scan_results > /tmp/wifi_all")
+        print os.popen("cat /tmp/wifi_all").read()
         # Only display WPS enabled points
         os.popen("cat /tmp/wifi_all | grep WPA | sort -r -k3 -n > /tmp/wifi")
         powers = os.popen("cat /tmp/wifi | awk '{print $3}'").read()
@@ -149,7 +158,7 @@ def locateself(debug_arg):
     res = geo.request_new( KEY, mac_array, p_array )
     if res is None:
         exit()
-    print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
+    #print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
     openChrome( res["lat"], res["lng"] )
 
 if __name__ == "__main__":
@@ -176,7 +185,7 @@ if __name__ == "__main__":
     if res is None:
         exit()
 
-    print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
+    #print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
     openChrome( res["lat"], res["lng"] )
     """
     print "Press CTRL+C to quit"
