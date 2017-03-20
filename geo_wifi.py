@@ -4,14 +4,25 @@
 # seach geo location from wifi mac address
 # 2016-06-20 K.OHWADA
 
-from selenium import webdriver
+#from selenium import webdriver
 import sys
 import urllib
 import urllib2
 import json
 import time
+import requests
+import os
 
-KEY = "your_key"
+try:
+	with open(os.path.expanduser("api.key"), 'r') as f:
+		contents = f.read()
+except IOError:
+	print "api.key not found... Quitting"
+	sys.exit()
+KEY = contents.split('\r\n') # Try and parse out microsoft created files
+if len(KEY) <= 1: # If it doesn't parse out properly
+	KEY = contents.split('\n') # Try and parse the "normal" way
+KEY = KEY[0]
 CMD_CHROMEDRIVER = "/usr/local/bin/chromedriver"
 
 #
@@ -23,12 +34,19 @@ class GeoWifi():
 
 	def request(self, key, addr1, addr2 ):
 		url = "https://www.googleapis.com/geolocation/v1/geolocate?key=" + key
+		print url
 		text = self.buildJson( addr1, addr2 )
-#		print text
-		req = urllib2.Request(url, text, self.HEADERS)
-		res = urllib2.urlopen(req)
-		body = res.read()
-#		print body
+		#print text #this is a json
+		#res = requests.post(url, json=text) # for some reason this isn't very accurate...
+		curlurl = str("curl -H \"Content-Type: application/json\" -H \"Accept: application/json\" -X POST -d '"+str(text)+"' " + str(url))
+		print curlurl
+		res = os.popen(curlurl).read()
+		print res
+		#req = urllib2.Request(url, text, self.HEADERS)
+		res = json.loads(res)
+		print res
+		#res = urllib2.urlopen(req)
+		body = res
 		return self.parseResponse(body)
 
 	def buildJson(self, addr1, addr2):
@@ -36,7 +54,7 @@ class GeoWifi():
 		obj[ "wifiAccessPoints" ] = self.buildAddressList(addr1, addr2)
 		text = json.dumps(obj)
 		return text
-	
+
 	def buildAddressList(self, addr1, addr2):
 		list = []
 		list.append( self.buildAddress(addr1) )
@@ -48,32 +66,35 @@ class GeoWifi():
 		return dict
 
 	def parseResponse(self, res):
-		obj = json.loads(res)
-		if obj["location"] is None:        
+		#obj = json.loads(res)
+		obj = res
+		if obj["location"] is None:
 			print res
 			return None
-		if obj["location"]["lat"] is None:   
+		if obj["location"]["lat"] is None:
 			print res
 			return None
-		if obj["location"]["lng"] is None:   
+		if obj["location"]["lng"] is None:
 			print res
 			return None
-		if obj["accuracy"] is None: 
-			accuracy = 0  
+		if obj["accuracy"] is None:
+			accuracy = 0
 		else:
-			accuracy = obj["accuracy"]  	
-		ret = {}	
+			accuracy = obj["accuracy"]
+		ret = {}
 		ret["lat"] = obj["location"]["lat"]
-		ret["lng"] = obj["location"]["lng"]		
-		ret["accuracy"] = accuracy	
+		ret["lng"] = obj["location"]["lng"]
+		ret["accuracy"] = accuracy
 		return ret
 
 # class end
 
 def openChrome(lat, lng):
-	url = "https://maps.google.co.jp/maps?q=" + str(lat) + "," + str(lng) + "&z=12"
-	driver = webdriver.Chrome( CMD_CHROMEDRIVER )
-	driver.get(url);
+	url = "https://maps.google.com/maps?q=" + str(lat) + "," + str(lng) + "&z=12"
+	#driver = webdriver.Chrome( CMD_CHROMEDRIVER )
+	#driver.get(url);
+	print("This is the URL to visit:")
+	print url
 
 # main
 args = sys.argv
@@ -89,7 +110,7 @@ if res is None:
 
 print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
 openChrome( res["lat"], res["lng"] )
-
+"""
 print "Press CTRL+C to quit"
 try:
 	# endless loop
@@ -98,5 +119,5 @@ try:
 except KeyboardInterrupt:
 	# exit the loop, if key interrupt
 	pass
-
-# end		
+"""
+# end

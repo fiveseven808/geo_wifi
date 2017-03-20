@@ -1,0 +1,8 @@
+#Ignore API Keys
+api.key
+
+#Ignore test wifi file
+wifi.txt
+testAPs
+test.py
+wifilist
