@@ -23,7 +23,6 @@ KEY = contents.split('\r\n') # Try and parse out microsoft created files
 if len(KEY) <= 1: # If it doesn't parse out properly
     KEY = contents.split('\n') # Try and parse the "normal" way
 KEY = KEY[0]
-CMD_CHROMEDRIVER = "/usr/local/bin/chromedriver"
 
 #
 # GeoWifi
@@ -127,10 +126,8 @@ class GeoWifi():
 
 # class end
 
-def openChrome(lat, lng):
+def generateURL(lat, lng):
     url = "https://maps.google.com/maps?q=" + str(lat) + "," + str(lng) + "&z=12"
-    #driver = webdriver.Chrome( CMD_CHROMEDRIVER )
-    #driver.get(url);
     print("This is the URL to visit:")
     print url
 
@@ -159,7 +156,7 @@ def locateself(debug_arg):
     if res is None:
         exit()
     #print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
-    openChrome( res["lat"], res["lng"] )
+    generateURL( res["lat"], res["lng"] )
 
 if __name__ == "__main__":
     # main
@@ -186,7 +183,7 @@ if __name__ == "__main__":
         exit()
 
     #print str(res["lat"]) + " " + str(res["lng"]) + " "+ str(res["accuracy"])
-    openChrome( res["lat"], res["lng"] )
+    generateURL( res["lat"], res["lng"] )
     """
     print "Press CTRL+C to quit"
     try:

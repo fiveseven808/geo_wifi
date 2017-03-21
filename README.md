@@ -10,13 +10,10 @@ using [Google Maps Geolocation API](https://developers.google.com/maps/documenta
 
 ### Setup
 - Get a [Google API Key](https://developers.google.com/maps/documentation/geolocation/get-api-key)  
-and add to api.key
+and add to a file called api.key in the working directory
 
 - Install [selenium](https://pypi.python.org/pypi/selenium)
 > $ pip install selenium
-
-
-- Install [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/home)
 
 
 ### Usage
