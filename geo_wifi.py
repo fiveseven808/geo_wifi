@@ -43,9 +43,9 @@ class GeoWifi():
         res = os.popen(curlurl).read()
         print res
         #req = urllib2.Request(url, text, self.HEADERS)
-        res = json.loads(res)
-        #print res
         #res = urllib2.urlopen(req)
+        res = json.loads(res)
+        print res
         body = res
         return self.parseResponse(body)
 
